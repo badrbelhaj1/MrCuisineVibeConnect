@@ -127,9 +127,11 @@ class HomeScreen(a: MainActivity) : Screen(a) {
         t.background = Ui.pressable(Ui.round(Ui.SURFACE, 26f, Ui.STROKE, 1f), 26f)
         t.addView(View(c), LinearLayout.LayoutParams(1, 0, 2f))
         val badge = android.widget.FrameLayout(c)
-        badge.background = Ui.round(Ui.ACCENT_DIM, 44f)
-        badge.addView(Icon(c, icon, Ui.ACCENT), Ui.flp(Ui.u(46), Ui.u(46), Gravity.CENTER))
-        t.addView(badge, LinearLayout.LayoutParams(Ui.u(84), Ui.u(84)))
+        // Pastille un peu plus opaque + icône plus grande : sur l'écran 7" du robot, les traits
+        // fins sur fond orange très transparent paraissaient flous (surtout livre / pétrir / étoile).
+        badge.background = Ui.round(0x55FF8A3D, 48f)
+        badge.addView(Icon(c, icon, Ui.ACCENT), Ui.flp(Ui.u(52), Ui.u(52), Gravity.CENTER))
+        t.addView(badge, LinearLayout.LayoutParams(Ui.u(92), Ui.u(92)))
         val text = Ui.vertical(c, Gravity.CENTER_HORIZONTAL or Gravity.TOP)
         text.addView(Ui.text(c, title, 22f, Ui.TEXT, Ui.MEDIUM).apply { gravity = Gravity.CENTER }, Ui.lp(Ui.WRAP, Ui.WRAP, t = 12))
         val s = Ui.ellipsize(Ui.text(c, sub, 15f, Ui.TEXT2).apply { gravity = Gravity.CENTER }, 2)

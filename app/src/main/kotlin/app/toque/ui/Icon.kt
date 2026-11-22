@@ -15,6 +15,12 @@ class Icon(context: Context, var kind: Kind, color: Int) : View(context) {
         CHEVRON, LINK, INFO, POT, TIMER, DROP, EDIT, TRASH, PEOPLE, DOWNLOAD, UPLOAD, GLOBE, BELL,
     }
 
+    init {
+        // Sur MediaTek / Android 6, le GPU adoucit trop les traits après un scale non entier :
+        // le rendu logiciel garde des contours nets sur les pastilles de l'accueil.
+        setLayerType(LAYER_TYPE_SOFTWARE, null)
+    }
+
     var color: Int = color
         set(v) {
             field = v
@@ -47,12 +53,22 @@ class Icon(context: Context, var kind: Kind, color: Int) : View(context) {
         // Le dessin tient dans la zone intérieure : un padding agrandit la zone tactile sans grossir le trait.
         val w = width - paddingLeft - paddingRight
         val h = height - paddingTop - paddingBottom
-        val s = minOf(w, h) / 24f
-        if (s <= 0f) return
+        val size = minOf(w, h)
+        if (size <= 0) return
+        // Origine alignée au pixel : évite le flou d'anti-aliasing sur demi-pixels.
+        val left = paddingLeft + (w - size) / 2
+        val top = paddingTop + (h - size) / 2
+        val s = size / 24f
         canvas.save()
-        canvas.translate(paddingLeft + (w - 24 * s) / 2f, paddingTop + (h - 24 * s) / 2f)
+        canvas.translate(left.toFloat(), top.toFloat())
         canvas.scale(s, s)
-        stroke.strokeWidth = 2f
+        // Épaisseur cible en pixels écran (pas en unités 24×24) : ~2,2–2,7 px selon la taille.
+        val targetPx = when {
+            size >= 44 -> 2.7f
+            size >= 28 -> 2.35f
+            else -> 2.0f
+        }
+        stroke.strokeWidth = targetPx / s
         val p = path
         p.reset()
         when (kind) {
